@@ -1,0 +1,2 @@
+API_TOKEN = '6990283746:AAGIU2OC2Uc5NSTyTvIg-c80FpH_7rzINRA'
+ADMIN_CHAT_ID = 'test58234085'  # Замените на ваш реальный ID
