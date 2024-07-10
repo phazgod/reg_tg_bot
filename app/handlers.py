@@ -33,7 +33,7 @@ async def cmd_start(message: Message, state: FSMContext):
 
 
 # Обработка ввода ФИО
-@router.message(Register.name, lambda message: not re.fullmatch(r'[A-Za-zА-Яа-яёЁ]+', message.text))
+@router.message(Register.name, lambda message: not re.fullmatch(r'[A-Za-zА-Яа-яёЁ ]+', message.text))
 async def invalid_phio(message: Message):
     await message.reply("ФИО может содержать только буквы. Попробуйте снова:")
 
@@ -42,20 +42,23 @@ async def invalid_phio(message: Message):
 async def register_name(message: Message, state: FSMContext):
     await state.update_data(name=message.text)
     await state.set_state(Register.phone)
-    await message.answer('Укажите Ваш номер телефона\nНомер телефона должен быть в формате 7 999 999 99 99')
+    await message.answer('Укажите Ваш номер телефона\nНомер телефона должен быть в формате +7 999 999 9999', reply_markup=kb.get_number)
 
 
-
-
-# Обработка Номера
-@router.message(Register.phone, lambda message: not re.fullmatch(r'7 \d{3} \d{3} \d{2} \d{2}', message.text))
+# Обработка некорректного номера телефона
+@router.message(Register.phone, lambda message: message.text and not re.fullmatch(r'\+7 \d{3} \d{3} \d{4}', message.text))
 async def invalid_phone(message: Message):
-    await message.reply("Номер телефона должен быть в формате 7 999 999 99 99. Попробуйте снова:")
+    await message.reply("Номер телефона должен быть в формате +7 999 999 9999. Попробуйте снова:")
 
-@router.message(Register.phone)
-async def register_phone(message: Message, state: FSMContext):
+@router.message(Register.phone, lambda message:  message.text)
+async def register_phone_text(message: Message, state: FSMContext):
     await state.update_data(phone=message.text)
-    # await state.update_data(phone=message.contact.phone_number)
+    await state.set_state(Register.comment)
+    await message.answer('Напишите любой комментарий')
+
+@router.message(Register.phone, lambda message: message.contact)
+async def register_phone_contact(message: Message, state: FSMContext):
+    await state.update_data(phone=message.contact.phone_number)
     await state.set_state(Register.comment)
     await message.answer('Напишите любой комментарий')
 
@@ -70,7 +73,7 @@ async def register_comment(message: Message, state: FSMContext):
 
 
 # Обработка ДА
-@router.message(Register.answer, lambda message: not re.fullmatch('Да', message.text))
+@router.message(Register.answer, lambda message: not re.fullmatch('Да', message.text, re.IGNORECASE))
 async def invalid_yes(message: Message):
     await message.reply("Ознакомься с вводными положениями.")
 
