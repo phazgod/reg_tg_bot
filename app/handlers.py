@@ -4,7 +4,11 @@ from aiogram.types import Message
 from aiogram.filters import CommandStart, Command
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.context import FSMContext
-from config import ADMIN_CHAT_ID
+
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 import app.keyboards as kb
 
@@ -80,7 +84,7 @@ async def last_message(message: Message, state: FSMContext):
         
         data = await state.get_data()
         admin_message = (f"Пользователь оставил комментарий:\nИмя: {data['name']}\nНомер: {data['phone']}\nКомментарий: {data['comment']}")
-        await message.bot.send_message(chat_id=ADMIN_CHAT_ID, text=admin_message)
+        await message.bot.send_message(chat_id=os.getenv('ADMIN_CHAT_ID'), text=admin_message)
         await state.clear()
 
         user_states[user_id] = 'disabled'
