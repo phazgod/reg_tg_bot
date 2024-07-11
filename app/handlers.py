@@ -5,15 +5,17 @@ from aiogram.filters import CommandStart, Command
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.context import FSMContext
 
-from dotenv import load_dotenv
-import os
-
-load_dotenv()
-
 import app.keyboards as kb
 
-router = Router()
+from dotenv import load_dotenv
+import os
+load_dotenv()
 
+
+router = Router()
+user_states = {}
+id_pdf = 'BQACAgIAAxkBAAPjZovEtgwCQFk7wbxcsxzJJxBmZrkAAndLAAKtI2BIpsSvPCOUhKY1BA'
+id_photo = 'AgACAgIAAxkBAAPTZovCiqUAAUKvX_WkC2eu7cVVa3U1AAI02jEbrSNgSNh2q9HFrniTAQADAgADeQADNQQ'
 
 class Register(StatesGroup):
     name = State()
@@ -21,12 +23,12 @@ class Register(StatesGroup):
     comment = State()
     answer = State()
 
-user_states = {}
+
 
 @router.message(CommandStart())
 async def cmd_start(message: Message, state: FSMContext):
     user_id = message.from_user.id
-    user_states[user_id] = 'start_used'
+    user_states[user_id] = 'enabled'
     await message.answer(f"{message.from_user.first_name}, Добро пожаловать в компанию DamnIT")
     await state.set_state(Register.name)
     await message.answer('Напишите свое ФИО')
@@ -34,21 +36,20 @@ async def cmd_start(message: Message, state: FSMContext):
 
 # Обработка ввода ФИО
 @router.message(Register.name, lambda message: not re.fullmatch(r'[A-Za-zА-Яа-яёЁ ]+', message.text))
-async def invalid_phio(message: Message):
+async def invalid_name(message: Message):
     await message.reply("ФИО может содержать только буквы. Попробуйте снова:")
-
 
 @router.message(Register.name)
 async def register_name(message: Message, state: FSMContext):
     await state.update_data(name=message.text)
     await state.set_state(Register.phone)
-    await message.answer('Укажите Ваш номер телефона\nНомер телефона должен быть в формате +7 999 999 9999', reply_markup=kb.get_number)
+    await message.answer('Укажите Ваш номер телефона\nНомер телефона должен быть в формате +7 999 999 99 99', reply_markup=kb.get_number)
 
 
 # Обработка некорректного номера телефона
-@router.message(Register.phone, lambda message: message.text and not re.fullmatch(r'\+7 \d{3} \d{3} \d{4}', message.text))
+@router.message(Register.phone, lambda message: message.text and not re.fullmatch(r'\+7 \d{3} \d{3} \d{2} \d{2}', message.text))
 async def invalid_phone(message: Message):
-    await message.reply("Номер телефона должен быть в формате +7 999 999 9999. Попробуйте снова:")
+    await message.reply("Номер телефона должен быть в формате +7 999 999 99 99. Попробуйте снова:")
 
 @router.message(Register.phone, lambda message:  message.text)
 async def register_phone_text(message: Message, state: FSMContext):
@@ -67,13 +68,13 @@ async def register_phone_contact(message: Message, state: FSMContext):
 async def register_comment(message: Message, state: FSMContext):
     await state.update_data(comment=message.text)
     await message.answer('Последний шаг! Ознакомься с вводными положениями')
-    await message.answer_document(document='BQACAgIAAxkBAAPjZovEtgwCQFk7wbxcsxzJJxBmZrkAAndLAAKtI2BIpsSvPCOUhKY1BA')
+    await message.answer_document(document=id_pdf)
     await state.set_state(Register.answer)
     await message.answer('Ознакомился?', reply_markup=kb.yes_pdf)
 
 
-# Обработка ДА
-@router.message(Register.answer, lambda message: not re.fullmatch('Да', message.text, re.IGNORECASE))
+# Обработка Кнопки
+@router.message(Register.answer, lambda message: not re.fullmatch('да', message.text, re.IGNORECASE))
 async def invalid_yes(message: Message):
     await message.reply("Ознакомься с вводными положениями.")
 
@@ -81,9 +82,9 @@ async def invalid_yes(message: Message):
 @router.message(lambda message: message.text != "/start")
 async def last_message(message: Message, state: FSMContext):
     user_id = message.from_user.id
-    if user_states.get(user_id) == 'start_used':
+    if user_states.get(user_id) == 'enabled':
         await message.answer("Спасибо за успешную регистрацию")
-        await message.answer_photo(photo='AgACAgIAAxkBAAPTZovCiqUAAUKvX_WkC2eu7cVVa3U1AAI02jEbrSNgSNh2q9HFrniTAQADAgADeQADNQQ')
+        await message.answer_photo(photo=id_photo)
         
         data = await state.get_data()
         admin_message = (f"Пользователь оставил комментарий:\nИмя: {data['name']}\nНомер: {data['phone']}\nКомментарий: {data['comment']}")
@@ -95,10 +96,7 @@ async def last_message(message: Message, state: FSMContext):
         await message.reply("Чтобы воспользоваться ботом, используйте команду /start.")
     
 
-
-
-
-# Это чтобы получить id
+# Получение ID
 @router.message(F.photo)
 async def get_photo(message: Message):
     await message.answer(f'ID фото: {message.photo[-1].file_id}')

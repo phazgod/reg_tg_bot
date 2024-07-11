@@ -5,7 +5,6 @@ from app.handlers import router
 # Ключи
 from dotenv import load_dotenv
 import os
-
 load_dotenv()
 
 
