@@ -14,8 +14,8 @@ load_dotenv()
 
 router = Router()
 user_states = {}
+id_photo = 'AgACAgIAAxkBAAMFZpBOStL6uIBAlI6046Bey5QjSWEAAmvjMRvR54FI7k3R6gUEsuABAAMCAAN5AAM1BA'
 id_pdf = 'BQACAgIAAxkBAAPjZovEtgwCQFk7wbxcsxzJJxBmZrkAAndLAAKtI2BIpsSvPCOUhKY1BA'
-id_photo = 'AgACAgIAAxkBAAPTZovCiqUAAUKvX_WkC2eu7cVVa3U1AAI02jEbrSNgSNh2q9HFrniTAQADAgADeQADNQQ'
 
 class Register(StatesGroup):
     name = State()
@@ -29,7 +29,7 @@ class Register(StatesGroup):
 async def cmd_start(message: Message, state: FSMContext):
     user_id = message.from_user.id
     user_states[user_id] = 'enabled'
-    await message.answer(f"{message.from_user.first_name}, Добро пожаловать в компанию DamnIT")
+    await message.answer(f"{message.from_user.first_name}, Добро пожаловать в компанию 'name'")
     await state.set_state(Register.name)
     await message.answer('Напишите свое ФИО')
 
@@ -94,13 +94,3 @@ async def last_message(message: Message, state: FSMContext):
         user_states[user_id] = 'disabled'
     else:
         await message.reply("Чтобы воспользоваться ботом, используйте команду /start.")
-    
-
-# Получение ID
-@router.message(F.photo)
-async def get_photo(message: Message):
-    await message.answer(f'ID фото: {message.photo[-1].file_id}')
-
-@router.message(F.document)
-async def get_pdf(message: Message):
-    await message.answer(f'ID pdf: {message.document.file_id}')
