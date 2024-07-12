@@ -53,7 +53,8 @@ async def invalid_phone(message: Message):
 
 @router.message(Register.phone, lambda message:  message.text)
 async def register_phone_text(message: Message, state: FSMContext):
-    await state.update_data(phone=message.text)
+    cleaned_phone = message.text.replace(" ", "")
+    await state.update_data(phone=cleaned_phone)
     await state.set_state(Register.comment)
     await message.answer('Напишите любой комментарий')
 
