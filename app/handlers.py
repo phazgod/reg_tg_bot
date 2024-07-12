@@ -29,7 +29,7 @@ class Register(StatesGroup):
 async def cmd_start(message: Message, state: FSMContext):
     user_id = message.from_user.id
     user_states[user_id] = 'enabled'
-    await message.answer(f"{message.from_user.first_name}, Добро пожаловать в компанию 'name'")
+    await message.answer(f"@{message.from_user.username}, Добро пожаловать в компанию 'Название компании'")
     await state.set_state(Register.name)
     await message.answer('Напишите свое ФИО')
 
