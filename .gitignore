@@ -6,6 +6,3 @@ app/__pycache__
 
 # Файл с ключами
 .env
-
-# Папка с исходным pdf, jpg
-files/
