@@ -6,3 +6,7 @@ app/__pycache__
 
 # Файл с ключами
 .env
+
+# Картинки
+images/reg_photo.png
+images/test.pdf
