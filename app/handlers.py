@@ -14,7 +14,8 @@ load_dotenv()
 
 router = Router()
 user_states = {}
-id_photo = 'AgACAgIAAxkBAAMFZpBOStL6uIBAlI6046Bey5QjSWEAAmvjMRvR54FI7k3R6gUEsuABAAMCAAN5AAM1BA'
+id_photo = 'https://cs5.pikabu.ru/post_img/big/2015/10/16/12/1445028518_1178230972.png'
+# id_photo = 'AgACAgIAAxkBAAMJZsWrwGZkuh_XWCouzB5kTvzBeEIAAsTYMRtLBTBKZVVzTLSmTgQBAAMCAAN5AAM1BA'
 id_pdf = 'BQACAgIAAxkBAAPjZovEtgwCQFk7wbxcsxzJJxBmZrkAAndLAAKtI2BIpsSvPCOUhKY1BA'
 
 class Register(StatesGroup):
